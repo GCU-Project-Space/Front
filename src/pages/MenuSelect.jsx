@@ -82,7 +82,7 @@ const Main = styled.main`
 `;
 
 const StoreBox = styled.div`
-  border: 1.5px solid;
+  border: 1.5px solid #ccc;
   border-radius: 10px;
   background: #f5f5f5;
   padding: 8px;
