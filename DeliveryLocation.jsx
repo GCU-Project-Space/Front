@@ -138,11 +138,6 @@ const DeliveryLocation = () => {
   const [deadlineTime, setDeadlineTime] = useState('');
     const navigate = useNavigate();
 
-  const handleCreateRecruitment = () => {
-    alert('모집 생성 및 메뉴 선택 클릭!');
-    // Here you would typically navigate or perform an API call
-  };
-
   return (
 
     <FixedLayout>
