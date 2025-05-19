@@ -1,3 +1,5 @@
+// src/pages/MenuSelect.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
@@ -9,39 +11,47 @@ import { FaShoppingCart } from "react-icons/fa";
 const MenuSelect = () => {
   const navigate = useNavigate();
 
+  // 가게 정보 변수
+  const store = {
+    name: "BHC - 가천대점",
+    location: "성남시 중원구 태평동",
+    currentAmount: 17000,
+    minOrder: 29000,
+    closeIn: "30분 후 마감",
+  };
+
+  // 메뉴 태그 변수
+  const mainMenus = ["뿌링클", "콰삭킹", "후라이드", "양념", "간장", "마늘"];
+  const sideMenus = ["치즈볼", "뿌링소떡", "감자튀김", "콜라", "사이다"];
+
   return (
     <AppWrapper>
       <FixedLayout>
         <Header title="가게목록" />
-        <BackButton onClick={() => navigate(-1)}>← 가게목록</BackButton>
+        <BackButton onClick={() => navigate(-1)}>← 가게 목록</BackButton>
 
         <Main>
           <StoreBox>
-            <StoreTitle>📍 [BHC - 가천대점]</StoreTitle>
-            <StoreInfo>성남시 중원구 태평동</StoreInfo>
+            <StoreTitle>📍 [{store.name}]</StoreTitle>
+            <StoreInfo>{store.location}</StoreInfo>
             <StorePrice>
-              <span className="current">17,000</span> / 29,000
+              <span className="current">{store.currentAmount.toLocaleString()}</span> / {store.minOrder.toLocaleString()}
             </StorePrice>
-            <StoreTime>30분 후 마감</StoreTime>
+            <StoreTime>{store.closeIn}</StoreTime>
           </StoreBox>
 
           <SectionTitle>대표 메뉴 ➝</SectionTitle>
           <TagScrollContainer>
-            <Tag>뿌링클</Tag>
-            <Tag>콰삭킹</Tag>
-            <Tag>후라이드</Tag>
-            <Tag>양념</Tag>
-            <Tag>간장</Tag>
-            <Tag>마늘</Tag>
+            {mainMenus.map((menu) => (
+              <Tag key={menu}>{menu}</Tag>
+            ))}
           </TagScrollContainer>
 
           <SectionTitle>사이드 메뉴 ➝</SectionTitle>
           <TagScrollContainer>
-            <Tag>치즈볼</Tag>
-            <Tag>뿌링소떡</Tag>
-            <Tag>감자튀김</Tag>
-            <Tag>콜라</Tag>
-            <Tag>사이다</Tag>
+            {sideMenus.map((menu) => (
+              <Tag key={menu}>{menu}</Tag>
+            ))}
           </TagScrollContainer>
         </Main>
 
@@ -57,6 +67,9 @@ const MenuSelect = () => {
 };
 
 export default MenuSelect;
+
+
+
   
 const AppWrapper = styled.div`
   max-width: 420px;
