@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Mypage from './pages/Mypage';
 import StoreList from './pages/StoreList';
 import MenuSelect from './pages/MenuSelect';
+import MenuOptionSelect from './pages/MenuOptionSelect';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Route path="/mypage" element={<Mypage />} />
       <Route path="/stores" element={<StoreList />} />
       <Route path="/menu-select" element={<MenuSelect />} />
+      <Route path="/menu-option" element={<MenuOptionSelect />} />
     </Routes>
   );
 }
