@@ -19,7 +19,7 @@ function Mypage() {
         <UserInfo />
         <h3 style={{ fontWeight: '700', marginTop: '0px' }}>개인정보</h3>
         <UserInfoBox />
-        <h3 style={{ fontWeight: '700', marginTop: '20px', marginBottom: '12px' }}>활동정보</h3>
+        <h3 style={{ fontWeight: '700', marginTop: '20px', marginBottom: '15px' }}>활동정보</h3>
         <div style={{ marginBottom: '40px' }}>
           <ActivityList />
         </div>
