@@ -183,7 +183,7 @@ const DeliveryLocation = () => {
         <option value="time7">60분</option>
       </Dropdown>
 
-      <Button onClick={navigate('/menu-select')}>
+      <Button onClick={(e) => navigate('/menu-select')}>
       모집 생성 및 메뉴 선택
       </Button>
 
