@@ -1,0 +1,36 @@
+/* SuccessPage.css */
+.result.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+}
+
+.box_section {
+    text-align: center;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+}
+
+.box_section h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.box_section p {
+    font-size: 16px;
+    color: #333;
+    margin: 8px 0;
+}
+
+.box_section p span {
+    font-weight: bold;
+    color: #000;
+}
