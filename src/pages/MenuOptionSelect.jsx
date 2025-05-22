@@ -35,12 +35,12 @@ const MenuOptionSelect = () => {
           <OptionSection>
             <OptionTitle>옵션</OptionTitle>
             <OptionRow>
-              <input type="checkbox" id="option1" />
+            <Checkbox id="option1" />
               <label htmlFor="option1">뿌링뿌링소스 추가</label>
               <OptionPrice>+ 2,500원</OptionPrice>
             </OptionRow>
             <OptionRow>
-              <input type="checkbox" id="option1" />
+            <Checkbox id="option1" />
               <label htmlFor="option1">치킨무</label>
               <OptionPrice>+ 1,000원</OptionPrice>
             </OptionRow>
@@ -121,8 +121,8 @@ const OptionSection = styled.div`
 `;
 
 const Checkbox = styled.input.attrs({ type: "checkbox" })`
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   accent-color: #1f3993;  
   cursor: pointer;
 `;
@@ -130,13 +130,14 @@ const Checkbox = styled.input.attrs({ type: "checkbox" })`
 const OptionTitle = styled.h4`
   font-size: 1.2rem;
   margin-bottom: 12px;
+  font-weight: 700;
 `;
 
 const OptionRow = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin-bottom: 17px;
 `;
 
@@ -158,7 +159,7 @@ const AddButton = styled.button`
   flex: 1;
   background: #1f3993;
   color: white;
-  font-size: 1rem;
+  font-size: 1.2rem;
   padding: 12px;
   border: none;
   border-radius: 8px;
