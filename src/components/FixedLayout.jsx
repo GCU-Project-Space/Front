@@ -11,7 +11,7 @@ function FixedLayout({ children }) {
         <div style={{
           width: '100%',
           maxWidth: '402px',  // iPhone 16 Pro 기준
-          height: '874px',
+          height: '800px',
           display: 'flex',
           flexDirection: 'column',
           boxSizing: 'border-box',
