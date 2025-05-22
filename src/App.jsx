@@ -10,8 +10,6 @@ import SelectSchool from './pages/SelectSchool';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import RecruitmentList from './pages/RecruitmentList';
-import StoreList from './pages/StoreList';
-import MenuSelect from './pages/MenuSelect';
 import DeliveryLocation from './pages/DeliveryLocation';
 
 
