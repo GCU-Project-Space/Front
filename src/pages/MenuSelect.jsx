@@ -1,4 +1,3 @@
-// src/pages/MenuSelect.jsx
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -68,8 +67,6 @@ const MenuSelect = () => {
 
 export default MenuSelect;
 
-
-
   
 const AppWrapper = styled.div`
   max-width: 420px;
@@ -96,6 +93,7 @@ const Main = styled.main`
 
 const StoreBox = styled.div`
   border: 1.5px solid #ccc;
+  border: 1.5px solid;
   border-radius: 10px;
   background: #f5f5f5;
   padding: 8px;
