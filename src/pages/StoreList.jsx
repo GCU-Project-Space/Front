@@ -47,7 +47,7 @@ const StoreList = () => {
 
       <main style={{ flex: 1, padding: '0 20px', overflowY: 'auto' }}>
         {stores.map((store, idx) => (
-          <div key={idx} style={{ marginBottom: '20px' }}>
+          <div key={idx} style={{ marginBottom: '20px',cursor: 'pointer' }} onClick={() => navigate('/menu-select', { state: store })}>
             <hr style={{ border: 'none', borderTop: '1px solid #ccc',margin: '0px 0'}}
       />
             <h3 style={{ fontSize: '2.5rem', fontWeight: '700', margin: '0 0 8px 0' }}>

@@ -6,18 +6,21 @@ import BottomNav from "../components/BottomNav";
 import FixedLayout from "../components/FixedLayout";
 import styled from "styled-components";
 import { FaShoppingCart } from "react-icons/fa";
+import { useLocation } from 'react-router-dom';
 
 const MenuSelect = () => {
   const navigate = useNavigate();
 
   // 가게 정보 변수
-  const store = {
-    name: "BHC - 가천대점",
-    location: "성남시 중원구 태평동",
-    currentAmount: 17000,
-    minOrder: 29000,
-    closeIn: "30분 후 마감",
+  const location = useLocation();
+  const defaultStore = {
+    name: "가게 이름 없음",
+    location: "주소 없음",
+    currentAmount: 0,
+    minOrder: 0,
+    closeIn: "정보 없음",
   };
+  const store = { ...defaultStore, ...(location.state || {}) };
 
   // 메뉴 태그 변수
   const mainMenus = ["뿌링클", "콰삭킹", "후라이드", "양념", "간장", "마늘"];
