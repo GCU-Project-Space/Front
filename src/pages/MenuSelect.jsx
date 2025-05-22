@@ -45,14 +45,18 @@ const MenuSelect = () => {
           <SectionTitle>대표 메뉴 ➝</SectionTitle>
           <TagScrollContainer>
             {mainMenus.map((menu) => (
-              <Tag key={menu}>{menu}</Tag>
+              <Tag key={menu} onClick={() => navigate('/menu-option', { state: { menuName: menu } })}>
+              {menu}
+            </Tag>
             ))}
           </TagScrollContainer>
 
           <SectionTitle>사이드 메뉴 ➝</SectionTitle>
           <TagScrollContainer>
             {sideMenus.map((menu) => (
-              <Tag key={menu}>{menu}</Tag>
+              <Tag key={menu} onClick={() => navigate('/menu-option', { state: { menuName: menu } })}>
+              {menu}
+            </Tag>
             ))}
           </TagScrollContainer>
         </Main>

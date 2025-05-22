@@ -5,9 +5,13 @@ import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import FixedLayout from "../components/FixedLayout";
 import { FaShoppingCart } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+
 
 const MenuOptionSelect = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const menuName = location.state?.menuName || "메뉴 이름 없음";
 
   return (
     <AppWrapper>
@@ -17,7 +21,7 @@ const MenuOptionSelect = () => {
 
         <Main>
           <MenuBox>
-            <MenuTitle>뿌링미니콜팝</MenuTitle>
+          <MenuTitle>{menuName}</MenuTitle>
             <MenuDescription>
               [150g] 콜팝치킨에서 음료를 뺀 실속형 콜팝치킨. 치킨만 원하시는 분을 위한 미니 콜팝
             </MenuDescription>
@@ -90,6 +94,7 @@ const MenuTitle = styled.h2`
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 10px;
+  margin-top: 15px;
 `;
 
 const MenuDescription = styled.p`
