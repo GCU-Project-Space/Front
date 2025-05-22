@@ -1,8 +1,8 @@
 function ActivityList() {
-    const items = ['주문 내역', '작성한 모집글', '참여한 모집글'];
+  const items = ['결제 내역', '모임 내역'];
   
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', width: '100%', maxWidth: '400px', margin: '0px' }}>
         {items.map((label, idx) => (
           <div
             key={idx}
