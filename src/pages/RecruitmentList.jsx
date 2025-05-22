@@ -69,14 +69,20 @@ function RecruitmentList() {
 }
 
 function RecruitmentItem({ item }) {
-  return (
-    <div className="RecruitmentItem">
-      <p style={{ fontSize: '18px', fontWeight: '600', padding: '5px 0' }}>{item.title}</p>
-      <p>{item.location}</p>
-      <p>{item.price.toLocaleString()}원</p>
-      <p>{item.time}분</p>
-    </div>
-  );
-}
+    const navigate = useNavigate();
+  
+    return (
+      <div
+        className="RecruitmentItem"
+        onClick={() => navigate('/menu-select', { state: item })}
+        style={{ cursor: 'pointer' }}
+      >
+        <p style={{ fontSize: '18px', fontWeight: '600', padding: '5px 0' }}>{item.title}</p>
+        <p>{item.location}</p>
+        <p>{item.price.toLocaleString()}원</p>
+        <p>{item.time}분</p>
+      </div>
+    );
+  }
 
 export default RecruitmentList;
