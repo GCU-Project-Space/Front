@@ -1,4 +1,5 @@
 import { Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; 
 
 const categories = [
   '패스트푸드', '한식', '분식', '치킨',
@@ -7,12 +8,14 @@ const categories = [
 ];
 
 function CategoryGrid() {
+  const navigate = useNavigate(); 
+
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',  // 3열
-      gap: '25px 25px',                       // 행/열 간격
-      padding: '0 0px',                      // 좌우 패딩
+      gridTemplateColumns: 'repeat(3, 1fr)', 
+      gap: '25px 25px',                       
+      padding: '0 0px',                      
       maxWidth: '480px',
       margin: '0 auto'
     }}>
@@ -20,15 +23,16 @@ function CategoryGrid() {
         <Button
           variant="light"
           key={idx}
+          onClick={() => navigate(`/category?type=${encodeURIComponent(cat)}`)}
           style={{
             backgroundColor: '#eeeeee',
             color: '#000',
             border: 'none',
             borderRadius: '8px',
-            height: '55px',                   // ✅ 버튼 높이
+            height: '55px',                  
             fontWeight: '600',
             fontSize: '18px',
-            padding: '4px 8px',               // ✅ 내부 여백 ↓
+            padding: '4px 8px',               
             lineHeight: '1.2',
             display: 'flex',
             justifyContent: 'center',
