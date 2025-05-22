@@ -10,6 +10,10 @@ function BottomNav() {
     <Navbar
       fixed="bottom" 
       style={{
+        position: 'absolute', 
+        bottom: 0,
+        left: 0,
+        right: 0,
         backgroundColor: '#D9D9D9',
         padding: '10px 0',
         width: '100%',

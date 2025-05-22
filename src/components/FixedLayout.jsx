@@ -15,7 +15,8 @@ function FixedLayout({ children }) {
           display: 'flex',
           flexDirection: 'column',
           boxSizing: 'border-box',
-          paddingBottom: '60px'
+          paddingBottom: '60px',
+          position: 'relative' 
         }}>
           {children}
         </div>
