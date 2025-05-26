@@ -1,77 +1,95 @@
 import React, { useState } from 'react';
 
 function UserInfoBox() {
-  const [isEditing, setIsEditing] = useState(false);
   const [editedInfo, setEditedInfo] = useState({
-    nickname: '심심한 호랑이',
-    phone: '010-1234-5678',
-    email: 'horang12@gachon.ac.kr'
+    nickname: '사용자',
+    phone: '010-XXXX-XXXX',
+    email: '이메일 입력하기',
   });
 
-  const handleChange = (field, value) => {
-    setEditedInfo(prev => ({ ...prev, [field]: value }));
+  const [editField, setEditField] = useState(null);
+  const [tempValue, setTempValue] = useState('');
+
+  const fields = [
+    { label: '닉네임', key: 'nickname' },
+    { label: '휴대전화', key: 'phone' },
+    { label: '이메일', key: 'email' },
+  ];
+
+  const handleEditClick = (key) => {
+    setEditField(key);
+    setTempValue(editedInfo[key]);
+  };
+
+  const handleCancel = () => {
+    setEditField(null);
+    setTempValue('');
   };
 
   const handleSave = () => {
-    // 실제 저장 로직 추가 가능 (예: axios.post)
-    setIsEditing(false);
-    console.log('저장된 정보:', editedInfo);
+    setEditedInfo((prev) => ({
+      ...prev,
+      [editField]: tempValue,
+    }));
+    setEditField(null);
   };
 
   return (
-    <div style={{
-      border: '1px solid #1C1B1F',
-      borderRadius: '12px',
-      width: '100%',
-      maxWidth: '400px',
-      margin: '0 auto',
-      overflow: 'hidden',
-    }}>
-      {!isEditing ? (
-        [
-          { label: '닉네임', key: 'nickname', value: editedInfo.nickname },
-          { label: '휴대전화', key: 'phone', value: editedInfo.phone },
-          { label: '이메일', key: 'email', value: editedInfo.email },
-        ].map((item, idx, arr) => (
-          <div
-            key={item.key}
-            onClick={() => setIsEditing(true)}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '11px 20px',
-              borderBottom: idx < arr.length - 1 ? '1px solid #ccc' : 'none',
-              cursor: 'pointer',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>{item.label}</span>
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>{item.value}</span>
+    <div
+      style={{
+        border: '1px solid #1C1B1F',
+        borderRadius: '12px',
+        width: '100%',
+        maxWidth: '400px',
+        margin: '0 auto',
+        overflow: 'hidden',
+      }}
+    >
+      {fields.map(({ label, key }, idx) => (
+        <div
+          key={key}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 20px',
+            borderBottom: idx < fields.length - 1 ? '1px solid #ccc' : 'none',
+          }}
+        >
+          {editField === key ? (
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '6px' }}>{label}</div>
+              <input
+                type="text"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                style={{ width: '100%', padding: '6px', fontSize: '14px' }}
+              />
+              <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button onClick={handleSave}>저장</button>
+                <button onClick={handleCancel}>취소</button>
+              </div>
             </div>
-            <span style={{ fontSize: '18px', color: 'black', fontWeight: '500' }}>{'>'}</span>
-          </div>
-        ))
-      ) : (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <label>
-            닉네임
-            <input type="text" value={editedInfo.nickname} onChange={(e) => handleChange('nickname', e.target.value)} style={{ width: '100%' }} />
-          </label>
-          <label>
-            휴대전화
-            <input type="text" value={editedInfo.phone} onChange={(e) => handleChange('phone', e.target.value)} style={{ width: '100%' }} />
-          </label>
-          <label>
-            이메일
-            <input type="email" value={editedInfo.email} onChange={(e) => handleChange('email', e.target.value)} style={{ width: '100%' }} />
-          </label>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <button onClick={() => setIsEditing(false)}>취소</button>
-            <button onClick={handleSave}>저장</button>
-          </div>
+          ) : (
+            <div
+              onClick={() => handleEditClick(key)}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '100%',
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ fontSize: '16px', fontWeight: 'bold', marginRight: '10px' }}>{label}</span>
+              <span style={{ fontSize: '14px', fontWeight: '500', marginRight: '10px', flex: 1, textAlign: 'right' }}>
+                {editedInfo[key]}
+              </span>
+              <span style={{ fontSize: '18px', color: 'black', fontWeight: '500' }}>{'>'}</span>
+            </div>
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }
