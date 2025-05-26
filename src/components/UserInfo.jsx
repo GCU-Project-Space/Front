@@ -1,4 +1,29 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+
 function UserInfo() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    axios.get('http://서버주소/api/v1/users/1')
+      .then(res => {
+        setUser(res.data);
+      })
+      .catch(err => {
+        console.error('유저 정보 불러오기 실패:', err);
+      });
+  }, []);
+
+  // 기본 값
+  const defaultProfile = '/src/assets/user_image.png';  // 기본 이미지 
+  const defaultName = '사용자';
+  const defaultSchool = ' OOO 대학교'
+
+  const profileImage = user?.profileImage || defaultProfile;
+  const nickname = user?.nickname || defaultName;
+  const schoolName = user?.schoolName || defaultSchool;
+
   return (
     <div style={{
       width: '100%',
@@ -18,7 +43,7 @@ function UserInfo() {
         width: 'fit-content',
         marginLeft: 0,
       }}>
-        가천대학교
+        {schoolName}
       </div>
 
       <div
@@ -30,12 +55,12 @@ function UserInfo() {
         }}
       >
         <img
-          src="/src/assets/user_image.png"
+          src={profileImage}
           alt="user"
           style={{ width: '50px', height: '50px', borderRadius: '50%' }}
         />
         <div style={{ fontWeight: 'bold', fontSize: '40px', }}>
-          심심한 호랑이
+          {nickname}
         </div>
       </div>
     </div>
