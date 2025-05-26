@@ -1,18 +1,16 @@
-
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import styled from "styled-components";
+import axios from "axios";
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import FixedLayout from "../components/FixedLayout";
-import styled from "styled-components";
 import { FaShoppingCart } from "react-icons/fa";
-import { useLocation } from 'react-router-dom';
 
 const MenuSelect = () => {
   const navigate = useNavigate();
-
-  // 가게 정보 변수
   const location = useLocation();
+
   const defaultStore = {
     name: "가게 이름 없음",
     location: "주소 없음",
@@ -22,9 +20,34 @@ const MenuSelect = () => {
   };
   const store = { ...defaultStore, ...(location.state || {}) };
 
-  // 메뉴 태그 변수
-  const mainMenus = ["뿌링클", "콰삭킹", "후라이드", "양념", "간장", "마늘"];
-  const sideMenus = ["치즈볼", "뿌링소떡", "감자튀김", "콜라", "사이다"];
+  const [mainMenus, setMainMenus] = useState(["대표메뉴 A", "대표메뉴 B", "대표메뉴 C"]);
+  const [sideMenus, setSideMenus] = useState(["사이드메뉴 A", "사이드메뉴 B", "사이드메뉴 C"]);
+
+  useEffect(() => {
+    axios.get("http://서버주소/api/v1/menus")
+      .then(res => {
+        setMainMenus(res.data.mainMenus || []);
+        setSideMenus(res.data.sideMenus || []);
+      })
+      .catch(err => {
+        console.error("메뉴 불러오기 실패:", err);
+      });
+  }, []);
+
+  const handleCartClick = () => {
+    const orderData = {
+      data: {
+        orderId: `ORDER-${Date.now()}`,
+        orderName: "대표 메뉴 주문",
+        customerEmail: "customer@example.com",
+        customerName: "홍길동",
+        customerMobilePhone: "01012345678",
+        amount: 12000,
+      },
+      directCheckout: false,
+    };
+    navigate("/order", { state: { orderData } });
+  };
 
   return (
     <AppWrapper>
@@ -44,26 +67,26 @@ const MenuSelect = () => {
 
           <SectionTitle>대표 메뉴 ➝</SectionTitle>
           <TagScrollContainer>
-            {mainMenus.map((menu) => (
-              <Tag key={menu} onClick={() => navigate('/menu-option', { state: { menuName: menu } })}>
-              {menu}
-            </Tag>
+            {mainMenus.map((menu, i) => (
+              <Tag key={`main-${i}`} onClick={() => navigate('/menu-option', { state: { menuName: menu } })}>
+                {menu}
+              </Tag>
             ))}
           </TagScrollContainer>
 
           <SectionTitle>사이드 메뉴 ➝</SectionTitle>
           <TagScrollContainer>
-            {sideMenus.map((menu) => (
-              <Tag key={menu} onClick={() => navigate('/menu-option', { state: { menuName: menu } })}>
-              {menu}
-            </Tag>
+            {sideMenus.map((menu, i) => (
+              <Tag key={`side-${i}`} onClick={() => navigate('/menu-option', { state: { menuName: menu } })}>
+                {menu}
+              </Tag>
             ))}
           </TagScrollContainer>
         </Main>
 
         <BottomWrapper>
           <PayButton>결제하기</PayButton>
-          <CartIcon />
+          <CartIcon onClick={handleCartClick} style={{ cursor: "pointer" }} />
         </BottomWrapper>
 
         <BottomNav />
@@ -74,7 +97,6 @@ const MenuSelect = () => {
 
 export default MenuSelect;
 
-  
 const AppWrapper = styled.div`
   max-width: 420px;
   margin: 0 auto;
@@ -100,11 +122,10 @@ const Main = styled.main`
 
 const StoreBox = styled.div`
   border: 1.5px solid #ccc;
-  border: 1.5px solid;
   border-radius: 10px;
   background: #f5f5f5;
-  padding: 8px;
-  margin: 0 0 20px 0;
+  padding: 10px 20px 10px 0px;
+  margin-bottom: 20px;
   text-align: center;
 `;
 
@@ -183,5 +204,5 @@ const PayButton = styled.button`
 
 const CartIcon = styled(FaShoppingCart)`
   font-size: 1.6rem;
-  color:#1f3993;
+  color: #1f3993;
 `;
