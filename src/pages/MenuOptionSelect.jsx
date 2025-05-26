@@ -1,30 +1,62 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import FixedLayout from "../components/FixedLayout";
 import { FaShoppingCart } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
-
+import axios from "axios";
 
 const MenuOptionSelect = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const menuName = location.state?.menuName || "메뉴 이름 없음";
 
-  // 예시용 하드코딩된 주문 데이터 (실제론 선택한 옵션 반영해야 함)
-  const orderData = {
-    menuName: menuName,
-    basePrice: 5000,
+  const [menuInfo, setMenuInfo] = useState({
+    description: "[00g] 메뉴의 상세설명을 적어주세요.",
+    basePrice: '0,000',
     options: [
-      { name: "뿌링뿌링소스 추가", price: 2500, selected: true },
-      { name: "치킨무", price: 1000, selected: false }
+      { name: "OOO 추가", price: '0,000' },
+      { name: "OOO 추가", price: '0,000' },
     ],
-    directCheckout: false  // order페이지 연결
+  });
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  // 서버에서 메뉴 정보 불러오기
+  useEffect(() => {
+    axios
+      .get(`http://서버주소/api/v1/menus?name=${menuName}`)
+      .then((res) => {
+        setMenuInfo(res.data);
+      })
+      .catch((err) => {
+        console.error("메뉴 정보 불러오기 실패:", err);
+      });
+  }, [menuName]);
+
+  const toggleOption = (index) => {
+    setSelectedOptions((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
+        : [...prev, index]
+    );
   };
 
+  const totalPrice = menuInfo.basePrice +
+    selectedOptions.reduce((sum, idx) => sum + (menuInfo.options[idx]?.price || 0), 0);
+
   const handleCartClick = () => {
+    const selectedOptionDetails = selectedOptions.map(i => menuInfo.options[i]);
+
+    const orderData = {
+      menuName,
+      basePrice: menuInfo.basePrice,
+      options: selectedOptionDetails,
+      directCheckout: false,
+      amount: totalPrice,
+    };
+
     navigate("/order", { state: { orderData } });
   };
 
@@ -36,35 +68,42 @@ const MenuOptionSelect = () => {
 
         <Main>
           <MenuBox>
-          <MenuTitle>{menuName}</MenuTitle>
-            <MenuDescription>
-              [150g] 콜팝치킨에서 음료를 뺀 실속형 콜팝치킨. 치킨만 원하시는 분을 위한 미니 콜팝
-            </MenuDescription>
-            <hr style={{ border: 'none', borderTop: '1.5px solid #ccc',margin: '0px 0px 10px 0px'}}/>
+            <MenuTitle>{menuName}</MenuTitle>
+            <MenuDescription>{menuInfo.description}</MenuDescription>
+            <hr
+              style={{
+                border: "none",
+                borderTop: "1.5px solid #ccc",
+                margin: "0px 0px 10px 0px",
+              }}
+            />
             <PriceRow>
               <PriceLabel>가격</PriceLabel>
-              <PriceValue>5,000원</PriceValue>
+              <PriceValue>{menuInfo.basePrice.toLocaleString()}원</PriceValue>
             </PriceRow>
           </MenuBox>
 
           <OptionSection>
             <OptionTitle>옵션</OptionTitle>
-            <OptionRow>
-            <Checkbox id="option1" />
-              <label htmlFor="option1">뿌링뿌링소스 추가</label>
-              <OptionPrice>+ 2,500원</OptionPrice>
-            </OptionRow>
-            <OptionRow>
-            <Checkbox id="option1" />
-              <label htmlFor="option1">치킨무</label>
-              <OptionPrice>+ 1,000원</OptionPrice>
-            </OptionRow>
+            {menuInfo.options.map((opt, idx) => (
+              <OptionRow key={idx}>
+                <Checkbox
+                  id={`option-${idx}`}
+                  checked={selectedOptions.includes(idx)}
+                  onChange={() => toggleOption(idx)}
+                />
+                <label htmlFor={`option-${idx}`}>{opt.name}</label>
+                <OptionPrice>+ {opt.price.toLocaleString()}원</OptionPrice>
+              </OptionRow>
+            ))}
           </OptionSection>
         </Main>
 
         <BottomWrapper>
-          <AddButton>5,000원 담기</AddButton>
-          <CartIcon onClick={handleCartClick} style={{ cursor: "pointer" }} />
+          <AddButton onClick={handleCartClick}>
+            {totalPrice.toLocaleString()}원 담기
+          </AddButton>
+          <CartIcon style={{ cursor: "pointer" }} />
         </BottomWrapper>
 
         <BottomNav />
@@ -138,7 +177,7 @@ const OptionSection = styled.div`
 const Checkbox = styled.input.attrs({ type: "checkbox" })`
   width: 20px;
   height: 20px;
-  accent-color: #1f3993;  
+  accent-color: #1f3993;
   cursor: pointer;
 `;
 
@@ -183,5 +222,5 @@ const AddButton = styled.button`
 
 const CartIcon = styled(FaShoppingCart)`
   font-size: 1.6rem;
-  color:#1f3993;
+  color: #1f3993;
 `;
