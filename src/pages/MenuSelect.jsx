@@ -115,12 +115,11 @@ const Main = styled.main`
 `;
 
 const StoreBox = styled.div`
-  border: 1.5px solid #ccc;
-  border: 1.5px solid;
+    border: 1.5px solid #ccc;
   border-radius: 10px;
   background: #f5f5f5;
-  padding: 8px;
-  margin: 0 0 20px 0;
+  padding: 10px 20px 10px 0px;
+  margin-bottom: 20px;
   text-align: center;
 `;
 
