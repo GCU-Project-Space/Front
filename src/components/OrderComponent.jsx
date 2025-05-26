@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid'; // 설치 필요: npm install uuid
+import { v4 as uuidv4 } from 'uuid';
+import styled from 'styled-components';
 
-
-const OrderComponent = ({
-  initialOrderData,
-  onOrderComplete,
-}) => {
+const OrderComponent = ({ initialOrderData, onOrderComplete }) => {
   const defaultOrderData = {
-    items: [{productId: 'EXAMPLE-001', count: 1}],
+    items: [{ productId: 'EXAMPLE-001', count: 1 }],
   };
 
   const [orderData, setOrderData] = useState(
@@ -31,7 +28,7 @@ const OrderComponent = ({
     e.preventDefault();
 
     try {
-      const uniqueOrderId = `ORDER-${uuidv4()}`; // 매번 유일한 ID
+      const uniqueOrderId = `ORDER-${uuidv4()}`;
 
       const mockResponse = {
         orderId: uniqueOrderId,
@@ -47,27 +44,76 @@ const OrderComponent = ({
   };
 
   return (
-    <div className='order-container'>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>주문 상품 목록:</label>
-          <ul>
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <Section>
+          <Label>주문 상품 목록</Label>
+          <ItemList>
             {orderData.items?.length > 0 ? (
               orderData.items.map((item, index) => (
-                <li key={index}>
-                  <div>상품 이름: {item.productId}</div>
-                  <div>수량: {item.count}</div>
-                </li>
+                <Item key={index}>
+                  <ItemText>상품   {item.productId}</ItemText>
+                  <ItemText>수량   {item.count}</ItemText>
+                </Item>
               ))
             ) : (
-              <p>선택된 상품이 없습니다.</p>
+              <ItemText>선택된 상품이 없습니다.</ItemText>
             )}
-          </ul>
-        </div>
-        <button type='submit'>주문 완료</button>
-      </form>
-    </div>
+          </ItemList>
+        </Section>
+        <SubmitButton type="submit">주문 완료</SubmitButton>
+      </Form>
+    </Container>
   );
 };
 
 export default OrderComponent;
+
+const Container = styled.div`
+  border: 1.5px solid #ccc;
+  border-radius: 10px;
+  background: #f5f5f5;
+  padding: 15px 20px 20px 20px;
+  margin-bottom: 20px;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const Section = styled.div``;
+
+const Label = styled.label`
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: block;
+`;
+
+const ItemList = styled.ul`
+  list-style: none;
+  padding-left: 0;
+`;
+
+const Item = styled.li`
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+`;
+
+const ItemText = styled.div`
+  font-size: 1.1rem;
+`;
+
+const SubmitButton = styled.button`
+  background-color: #1f3993;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+`;

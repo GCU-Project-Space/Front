@@ -11,9 +11,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import RecruitmentList from './pages/RecruitmentList';
 import DeliveryLocation from './pages/DeliveryLocation';
-import FailPage from "./pages/toss/FailPage.jsx";
-import SuccessPage from "./pages/toss/SuccessPage.jsx";
-import OrderPage from "./pages/order/OrderPage.jsx";
+import FailPage from "./components/toss/FailPage.jsx";
+import SuccessPage from "./components/toss/SuccessPage.jsx";
+import OrderPage from "./pages/OrderPage.jsx";
 
 
 function App() {

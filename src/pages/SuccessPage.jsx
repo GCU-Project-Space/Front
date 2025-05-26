@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './css/SuccessPage.css';
-import FixedLayout from "../../components/FixedLayout.jsx";
+import FixedLayout from "../FixedLayout.jsx";
 
 export default function SuccessPage() {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import FixedLayout from "../../components/FixedLayout.jsx";
+import FixedLayout from "../FixedLayout.jsx";
 
 export default function FailPage() {
     const [searchParams] = useSearchParams();

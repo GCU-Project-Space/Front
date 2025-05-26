@@ -1,13 +1,12 @@
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid'; // 설치 필요: npm install uuid
+import { v4 as uuidv4 } from 'uuid';
+import styled from 'styled-components';
 
 export function CheckOutComponent({ orderData }) {
-  console.log('CheckOutComponent에서 받은 orderData:', orderData);
-
   const [amount, setAmount] = useState({
     currency: 'KRW',
-    value: parseInt(orderData?.data?.amount, 10) || 10000, // 문자열을 숫자로 변환
+    value: parseInt(orderData?.data?.amount, 10) || 10000,
   });
 
   const [ready, setReady] = useState(false);
@@ -17,7 +16,7 @@ export function CheckOutComponent({ orderData }) {
   useEffect(() => {
     async function fetchPaymentWidgets() {
       const tossPayments = await loadTossPayments(
-          'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm'
+        'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm'
       );
       const widgets = tossPayments.widgets({
         customerKey: '1YxpCe8nRUy4TZE0d7ZTx',
@@ -30,9 +29,7 @@ export function CheckOutComponent({ orderData }) {
 
   useEffect(() => {
     async function renderPaymentWidgets() {
-      if (!widgets || !orderData) {
-        return;
-      }
+      if (!widgets || !orderData) return;
 
       await widgets.setAmount(amount);
       await Promise.all([
@@ -55,9 +52,9 @@ export function CheckOutComponent({ orderData }) {
   const handlePayment = async () => {
     try {
       const orderId =
-          orderData?.data?.orderId != null
-              ? orderData.data.orderId.toString().padStart(6, '0')
-              : randomFallbackId.toString().padStart(6, '0');
+        orderData?.data?.orderId != null
+          ? orderData.data.orderId.toString().padStart(6, '0')
+          : randomFallbackId.toString().padStart(6, '0');
 
       await widgets.requestPayment({
         orderId,
@@ -68,28 +65,63 @@ export function CheckOutComponent({ orderData }) {
         customerName: orderData?.data?.customerName || '김토스',
         customerMobilePhone: orderData?.data?.customerMobilePhone || '01012341234',
       });
-
-      console.log(orderData);
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-      <div className="wrapper">
-        <div className="box_section">
-          {/* 결제 UI */}
-          <div id="payment-method" />
-          {/* 이용약관 UI */}
-          <div id="agreement" />
-
-          <button className="button" disabled={!ready} onClick={handlePayment}>
-            결제하기
-          </button>
-        </div>
-      </div>
+    <Wrapper>
+      <div id="payment-method" />
+      <div id="agreement" />
+      <PayButton disabled={!ready} onClick={handlePayment}>
+        결제하기
+      </PayButton>
+      <TossStyleFix />
+    </Wrapper>
   );
 }
 
-export default class TossCheckOut {
-}
+// 스타일 컴포넌트
+const Wrapper = styled.div`
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: transparent;
+  border: none;
+`;
+
+const PayButton = styled.button`
+  background-color: #1f3993;
+  color: white;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+`;
+
+const TossStyleFix = () => (
+  <style>
+    {`
+      #payment-method .method {
+        flex: 1 1 30% !important;
+        min-width: 140px !important;
+        max-width: 200px !important;
+        margin: 10px !important;
+        padding: 14px 10px !important;
+        box-sizing: border-box !important;
+      }
+
+      @media (max-width: 480px) {
+        #payment-method .method {
+          flex: 1 1 45% !important;
+        }
+      }
+    `}
+  </style>
+);

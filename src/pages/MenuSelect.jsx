@@ -22,6 +22,22 @@ const MenuSelect = () => {
   };
   const store = { ...defaultStore, ...(location.state || {}) };
 
+  const handleCartClick = () => {
+    const orderData = {
+      data: {
+        orderId: `ORDER-${Date.now()}`,
+        orderName: "대표 메뉴 주문",
+        customerEmail: "customer@example.com",
+        customerName: "홍길동",
+        customerMobilePhone: "01012345678",
+        amount: 12000,
+      },
+      directCheckout: false,
+    };
+  
+    navigate("/order", { state: { orderData } });
+  };
+
   // 메뉴 태그 변수
   const mainMenus = ["뿌링클", "콰삭킹", "후라이드", "양념", "간장", "마늘"];
   const sideMenus = ["치즈볼", "뿌링소떡", "감자튀김", "콜라", "사이다"];
@@ -63,7 +79,7 @@ const MenuSelect = () => {
 
         <BottomWrapper>
           <PayButton>결제하기</PayButton>
-          <CartIcon />
+          <CartIcon onClick={handleCartClick} style={{ cursor: "pointer" }} />
         </BottomWrapper>
 
         <BottomNav />

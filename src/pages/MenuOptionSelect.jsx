@@ -13,6 +13,21 @@ const MenuOptionSelect = () => {
   const location = useLocation();
   const menuName = location.state?.menuName || "메뉴 이름 없음";
 
+  // 예시용 하드코딩된 주문 데이터 (실제론 선택한 옵션 반영해야 함)
+  const orderData = {
+    menuName: menuName,
+    basePrice: 5000,
+    options: [
+      { name: "뿌링뿌링소스 추가", price: 2500, selected: true },
+      { name: "치킨무", price: 1000, selected: false }
+    ],
+    directCheckout: false  // order페이지 연결
+  };
+
+  const handleCartClick = () => {
+    navigate("/order", { state: { orderData } });
+  };
+
   return (
     <AppWrapper>
       <FixedLayout>
@@ -49,7 +64,7 @@ const MenuOptionSelect = () => {
 
         <BottomWrapper>
           <AddButton>5,000원 담기</AddButton>
-          <CartIcon />
+          <CartIcon onClick={handleCartClick} style={{ cursor: "pointer" }} />
         </BottomWrapper>
 
         <BottomNav />
