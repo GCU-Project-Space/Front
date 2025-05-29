@@ -23,7 +23,7 @@ function BottomNav() {
         <Nav.Link onClick={() => navigate(-1)}>
           <ArrowLeft size={30} color="#0C198C" />
         </Nav.Link>
-        <Nav.Link onClick={() => navigate('/')}>
+        <Nav.Link onClick={() => navigate('/home')}>
           <HouseDoor size={30} color="#0C198C" />
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/mypage')}>

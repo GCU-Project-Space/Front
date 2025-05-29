@@ -38,7 +38,7 @@ function Login() {
       sessionStorage.setItem("role", result.role); // 여기서 role를 저장합니다.
       sessionStorage.setItem("storeid", result.storeId); // 여기서 role를 저장합니다.
       console.log("로그인성공, 이메일주소:" + result.email);
-      navigate("/"); // 로그인 성공시 홈으로 이동합니다.
+      navigate("/home"); // 로그인 성공시 홈으로 이동합니다.
     } else {
       setLoginCheck(true);
     }
