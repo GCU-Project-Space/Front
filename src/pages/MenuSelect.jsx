@@ -34,19 +34,24 @@ const MenuSelect = () => {
       });
   }, []);
 
+  // 내가 담은 메뉴만 결제하러 가기
+  const handleMyOrderClick = () => {
+    navigate("/order", {
+      state: {
+        directCheckout: true,  // 내 메뉴만
+        from: "menu-select"
+      }
+    });
+  };
+
+  // 팀원들 메뉴 포함 전체 주문 확인
   const handleCartClick = () => {
-    const orderData = {
-      data: {
-        orderId: `ORDER-${Date.now()}`,
-        orderName: "대표 메뉴 주문",
-        customerEmail: "customer@example.com",
-        customerName: "홍길동",
-        customerMobilePhone: "01012345678",
-        amount: 12000,
-      },
-      directCheckout: false,
-    };
-    navigate("/order", { state: { orderData } });
+    navigate("/order", {
+      state: {
+        directCheckout: false,  // 전체 주문 내역
+        from: "menu-select"
+      }
+    });
   };
 
   return (
@@ -85,8 +90,8 @@ const MenuSelect = () => {
         </Main>
 
         <BottomWrapper>
-          <PayButton>결제하기</PayButton>
-          <CartIcon onClick={handleCartClick} style={{ cursor: "pointer" }} />
+          <PayButton onClick={handleMyOrderClick}>결제하기</PayButton>
+          <CartIcon onClick={handleCartClick} />
         </BottomWrapper>
 
         <BottomNav />
