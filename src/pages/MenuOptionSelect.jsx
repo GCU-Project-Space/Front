@@ -14,16 +14,15 @@ const MenuOptionSelect = () => {
 
   const [menuInfo, setMenuInfo] = useState({
     description: "[00g] 메뉴의 상세설명을 적어주세요.",
-    basePrice: '0,000',
+    basePrice: 0,
     options: [
-      { name: "OOO 추가", price: '0,000' },
-      { name: "OOO 추가", price: '0,000' },
+      { name: "OOO 추가", price: 0 },
+      { name: "OOO 추가", price: 0 },
     ],
   });
 
   const [selectedOptions, setSelectedOptions] = useState([]);
 
-  // 서버에서 메뉴 정보 불러오기
   useEffect(() => {
     axios
       .get(`http://서버주소/api/v1/menus?name=${menuName}`)
@@ -37,27 +36,41 @@ const MenuOptionSelect = () => {
 
   const toggleOption = (index) => {
     setSelectedOptions((prev) =>
-      prev.includes(index)
-        ? prev.filter((i) => i !== index)
-        : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
   const totalPrice = menuInfo.basePrice +
     selectedOptions.reduce((sum, idx) => sum + (menuInfo.options[idx]?.price || 0), 0);
 
-  const handleCartClick = () => {
+  // 내가 담은 메뉴만 보여주는 주문 내역으로 이동
+  const handleAddClick = () => {
     const selectedOptionDetails = selectedOptions.map(i => menuInfo.options[i]);
 
     const orderData = {
       menuName,
       basePrice: menuInfo.basePrice,
       options: selectedOptionDetails,
-      directCheckout: false,
       amount: totalPrice,
     };
 
-    navigate("/order", { state: { orderData } });
+    navigate("/order", {
+      state: {
+        orderData,
+        directCheckout: true,
+        from: "menu-option"
+      }
+    });
+  };
+
+  //  전체 팀원 담은 메뉴 보여주는 주문 내역으로 이동
+  const handleCartClick = () => {
+    navigate("/order", {
+      state: {
+        directCheckout: false,
+        from: "menu-option"
+      }
+    });
   };
 
   return (
@@ -70,13 +83,7 @@ const MenuOptionSelect = () => {
           <MenuBox>
             <MenuTitle>{menuName}</MenuTitle>
             <MenuDescription>{menuInfo.description}</MenuDescription>
-            <hr
-              style={{
-                border: "none",
-                borderTop: "1.5px solid #ccc",
-                margin: "0px 0px 10px 0px",
-              }}
-            />
+            <hr style={{ border: "none", borderTop: "1.5px solid #ccc", margin: "0px 0px 10px 0px" }} />
             <PriceRow>
               <PriceLabel>가격</PriceLabel>
               <PriceValue>{menuInfo.basePrice.toLocaleString()}원</PriceValue>
@@ -100,10 +107,10 @@ const MenuOptionSelect = () => {
         </Main>
 
         <BottomWrapper>
-          <AddButton onClick={handleCartClick}>
+          <AddButton onClick={handleAddClick}>
             {totalPrice.toLocaleString()}원 담기
           </AddButton>
-          <CartIcon style={{ cursor: "pointer" }} />
+          <CartIcon onClick={handleCartClick} />
         </BottomWrapper>
 
         <BottomNav />
