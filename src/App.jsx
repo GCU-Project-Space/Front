@@ -14,14 +14,15 @@ import DeliveryLocation from './pages/DeliveryLocation';
 import FailPage from "./components/toss/FailPage.jsx";
 import SuccessPage from "./components/toss/SuccessPage.jsx";
 import OrderPage from "./pages/OrderPage.jsx";
+import OrderHistory from "./pages/OrderHistory.jsx";
 
 
 function App() {
     return (
         <Routes>
             <Route path="/home" element={<Home/>}/>
-
             <Route path="/mypage" element={<Mypage/>}/>
+            <Route path="/history" element={<OrderHistory/>}/>
             <Route path="/stores" element={<StoreList/>}/>
             <Route path="/menu-select" element={<MenuSelect/>}/>
             <Route path="/menu-option" element={<MenuOptionSelect/>}/>

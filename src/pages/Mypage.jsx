@@ -17,9 +17,9 @@ function Mypage() {
       </div>
       <main style={{ flex: 1, padding: '0 20px', overflowY: 'auto' }}>
         <UserInfo />
-        <h3 style={{ fontWeight: '700', marginTop: '0px' }}>개인정보</h3>
+        <h3 style={{ fontWeight: '700', marginTop: '0px', marginBottom: '20px' }}>개인정보</h3>
         <UserInfoBox />
-        <h3 style={{ fontWeight: '700', marginTop: '20px', marginBottom: '12px' }}>활동정보</h3>
+        <h3 style={{ fontWeight: '700', marginTop: '40px', marginBottom: '20px' }}>활동정보</h3>
         <div style={{ marginBottom: '40px' }}>
           <ActivityList />
         </div>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './css/SuccessPage.css';
 import FixedLayout from "../FixedLayout.jsx";
@@ -7,57 +7,100 @@ export default function SuccessPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    // 쿼리 파라미터 값이 결제 요청할 때 보낸 데이터와 동일한지 반드시 확인하세요.
-    // 클라이언트에서 결제 금액을 조작하는 행위를 방지할 수 있습니다.
-    const requestData = {
-      orderId: searchParams.get('orderId'),
-      amount: searchParams.get('amount'),
-      paymentKey: searchParams.get('paymentKey'),
-    };
+  const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+  const [errorMsg, setErrorMsg] = useState('');
 
-    console.log(requestData);
+  useEffect(() => {
+    const orderId = searchParams.get('orderId');
+    const amount = searchParams.get('amount');
+    const paymentKey = searchParams.get('paymentKey');
+
+    if (!orderId || !amount || !paymentKey) {
+      setStatus('error');
+      setErrorMsg('필수 결제 정보 누락');
+      return;
+    }
+
+    const requestData = { orderId, amount, paymentKey };
 
     async function confirm() {
-      const response = await fetch(
-        'http://34.127.7.212:8101/v1/payments/confirm',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestData),
+      try {
+        const response = await fetch(
+          'http://34.127.7.212:8101/v1/payments/confirm',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
+
+        const json = await response.json();
+        console.log('결제 응답:', json);
+
+        if (!response.ok) {
+          setStatus('error');
+          setErrorMsg(json.message || '결제 실패');
+          return;
         }
-      );
 
-      const json = await response.json();
-      console.log('결과임' + json);
-      if (!response.ok) {
-        // 결제 실패 비즈니스 로직을 구현하세요.
-        navigate(`/fail?message=${json.message}&code=${json.code}`);
-        return;
+        // 성공
+        setStatus('success');
+      } catch (error) {
+        setStatus('error');
+        setErrorMsg('서버 오류');
       }
-
-      // 결제 성공 비즈니스 로직을 구현하세요.
     }
 
     confirm();
-  }, []);
+  }, [searchParams]);
 
   return (
-      <FixedLayout>
-        <div className='result wrapper'>
-          <div className='box_section'>
-            <h2>결제 성공</h2>
-            <p>
-              주문번호: <span>{searchParams.get('orderId')}</span>
-            </p>
-            <p>
-              결제 금액:{' '}
-              <span>{Number(searchParams.get('amount')).toLocaleString()}원</span>
-            </p>
-          </div>
+    <FixedLayout>
+      <div className='result wrapper'>
+        <div className='box_section'>
+          {status === 'loading' && <p>결제 확인 중...</p>}
+
+          {status === 'error' && (
+            <>
+              <h2>결제 실패</h2>
+              <p>에러 메시지: {errorMsg}</p>
+              <button onClick={() => navigate('/order')}>다시 결제로 돌아가기</button>
+            </>
+          )}
+
+          {status === 'success' && (
+            <>
+              <h2>결제 성공</h2>
+              <p>
+                주문번호: <span>{searchParams.get('orderId')}</span>
+              </p>
+              <p>
+                결제 금액:{' '}
+                <span>{Number(searchParams.get('amount')).toLocaleString()}원</span>
+              </p>
+
+              <button
+                style={{
+                  marginTop: '20px',
+                  padding: '10px 20px',
+                  backgroundColor: '#1f3993',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                }}
+                onClick={() => navigate('/order-history')}
+              >
+                주문 내역 보기
+              </button>
+            </>
+          )}
         </div>
-      </FixedLayout>
+      </div>
+    </FixedLayout>
   );
 }
