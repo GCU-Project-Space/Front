@@ -14,7 +14,7 @@ function RecruitmentList() {
 
   const [items] = useState(Item);
 
-  // ✅ 카테고리별 필터링
+  // 카테고리별 필터링
   const filteredItems = categoryType
     ? items.filter(item => item.category === categoryType)
     : items;
@@ -39,7 +39,7 @@ function RecruitmentList() {
       <Header />
       <div className="header">
         <h4 style={{ padding: '10px' }}>
-          <ArrowLeft size={20} onClick={() => navigate('/')} /> 카테고리
+          <ArrowLeft size={20} onClick={() => navigate('/home')} /> 카테고리
         </h4>
       </div>
 

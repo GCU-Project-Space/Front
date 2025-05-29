@@ -19,7 +19,7 @@ import OrderPage from "./pages/OrderPage.jsx";
 function App() {
     return (
         <Routes>
-            <Route path="/" element={<Home/>}/>
+            <Route path="/home" element={<Home/>}/>
 
             <Route path="/mypage" element={<Mypage/>}/>
             <Route path="/stores" element={<StoreList/>}/>
@@ -28,7 +28,7 @@ function App() {
             <Route path="/register" element={<Register/>}/>
             <Route path="/mypage" element={<Mypage/>}/>
             <Route path="/school" element={<SelectSchool/>}/>
-            <Route path="/login" element={<Login/>}/>
+            <Route path="/" element={<Login/>}/>
             <Route path="/category" element={<RecruitmentList/>}/>
             <Route path="/stores" element={<StoreList/>}/>
             <Route path="/menu-select" element={<MenuSelect/>}/>

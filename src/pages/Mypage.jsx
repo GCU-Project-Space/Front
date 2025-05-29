@@ -11,7 +11,7 @@ function Mypage() {
     <FixedLayout>
       <Header />
       <div style={{ padding: '13px', fontSize: '16px', fontWeight: '500' }}>
-        <span style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+        <span style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/home'}>
           ← 홈 화면
         </span>
       </div>

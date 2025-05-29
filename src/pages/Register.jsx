@@ -12,7 +12,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
 
-  const navigate = useNavigate();
+  const navigate = useNavigate("/");
 
   const handleSignup = async (event) => {
     event.preventDefault();
