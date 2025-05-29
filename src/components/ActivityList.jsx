@@ -1,5 +1,5 @@
 function ActivityList() {
-  const items = ['결제 내역', '모임 내역'];
+  const items = ['모임 내역'];
   
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', width: '100%', maxWidth: '400px', margin: '0px' }}>
@@ -19,7 +19,7 @@ function ActivityList() {
             }}
           >
             <span>{label}</span>
-            <span style={{ fontSize: '18px', color: 'black',fontWeight: '500' }}>{'>'}</span>
+            <span style={{ fontSize: '18px', color: 'black',fontWeight: '500' }} onClick={() => window.location.href = '/history'}>{'>'}</span>
           </div>
         ))}
       </div>
