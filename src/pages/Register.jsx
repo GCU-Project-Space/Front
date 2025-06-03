@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import FixedLayout from "../components/FixedLayout";
 import styled from "styled-components";
+import { userService } from "../api/service";
+import FixedLayout from "../components/FixedLayout";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -10,7 +11,8 @@ const Register = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("USER");
+  const [storeId, setStoreId] = useState();
 
   const navigate = useNavigate("/");
 
@@ -22,32 +24,27 @@ const Register = () => {
       return;
     }
 
-    const payload = {
-      email,
-      password,
-      nickname: userNickname,
-      name: username,
-      phone: phoneNumber,
-      role,
-    };
+    const request = {
+      email : email,
+      password : password,
+      nickname : userNickname,
+      school : "가천대학교",
+      phoneNumber : phoneNumber,
+      schoolId : "000000000",
+      userType : role,
+      storeId : Number(storeId)
+    }
 
-    try {
-      const response = await fetch("http://54.66.149.225:8104/api/v1/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    console.log(request);
 
-      const data = await response.json();
+    const response = await userService.signup(request)
 
-      if (response.status === 201) {
-        console.log("성공! 이메일주소: " + data.email);
-        navigate("/login");
-      } else if (response.status === 400) {
-        alert(`회원가입 실패: ${data.email}`);
-      }
-    } catch (error) {
-      console.error("오류 발생:", error);
+    if (response.success === true) {
+      console.log("회원가입 성공");
+      console.log(response);
+      navigate("/");
+    } else {
+      alert(`회원가입 실패 : ${response.message}`);
     }
   };
 
@@ -56,17 +53,8 @@ const Register = () => {
       <Container>
         <Logo src="/Logo.png" alt="Logo" />
         <Form onSubmit={handleSignup}>
-          <Label>사용자명</Label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-
-          <Label>닉네임</Label>
-          <Input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
-
-          <Label>전화번호</Label>
-          <Input type="text" value={userNickname} onChange={(e) => setUserNickname(e.target.value)} />
-
           <Label>이메일</Label>
-          <Input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
           <Label>비밀번호</Label>
           <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -74,15 +62,21 @@ const Register = () => {
           <Label>비밀번호 확인</Label>
           <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
 
+          <Label>닉네임</Label>
+          <Input type="text" value={userNickname} onChange={(e) => setUserNickname(e.target.value)} />
+
+          <Label>전화번호</Label>
+          <Input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          
           <Label>회원 유형</Label>
           <RadioGroup>
             <RadioItem>
               <input
                 type="radio"
                 id="customer"
-                value="user"
-                checked={role === "user"}
-                onChange={() => setRole("user")}
+                value="USER"
+                checked={role === "USER"}
+                onChange={() => setRole("USER")}
               />
               <label htmlFor="customer">고객</label>
             </RadioItem>
@@ -90,18 +84,29 @@ const Register = () => {
               <input
                 type="radio"
                 id="seller"
-                value="seller"
-                checked={role === "seller"}
-                onChange={() => setRole("seller")}
+                value="STORE"
+                checked={role === "OWNER"}
+                onChange={() => setRole("OWNER")}
               />
               <label htmlFor="seller">판매자</label>
             </RadioItem>
           </RadioGroup>
 
+          {
+            role === "OWNER" ? 
+            <div>
+              <Label>사업자번호 </Label>
+              <Input type="number" value={storeId} onChange={(e) => setStoreId(Number(e.target.value))} />
+            </div>
+          :
+          <></>
+          }
+          
+
           <SubmitButton type="submit">회원가입</SubmitButton>
 
           <LoginText>
-            이미 회원이신가요? <Link to="/login">로그인</Link>
+            이미 회원이신가요? <Link to="/">로그인</Link>
           </LoginText>
         </Form>
       </Container>

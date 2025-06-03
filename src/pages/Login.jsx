@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import FixedLayout from "../components/FixedLayout";
 import styled from "styled-components";
+import { userService } from "../api/service";
+import FixedLayout from "../components/FixedLayout";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -13,32 +14,31 @@ function Login() {
   const handleLogin = async (event) => {
     // 로그인 처리 로직을 구현합니다.
     event.preventDefault();
-    await new Promise((r) => setTimeout(r, 1000));
     
-    const response = await fetch(
-      "로그인 서버 주소",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      }
-    );
-    const result = await response.json();
+    const response = await userService.login({
+      email, password
+    });
 
-    if (response.status === 200) {
+    if (response.success === true) {
       setLoginCheck(false);
+      const result = response.data;
+      console.log(response);
       // Store token in local storage
-      sessionStorage.setItem("token", result.token);
+      sessionStorage.setItem("userId", result.id)
       sessionStorage.setItem("email", result.email); // 여기서 userid를 저장합니다.
       sessionStorage.setItem("role", result.role); // 여기서 role를 저장합니다.
-      sessionStorage.setItem("storeid", result.storeId); // 여기서 role를 저장합니다.
-      console.log("로그인성공, 이메일주소:" + result.email);
-      navigate("/home"); // 로그인 성공시 홈으로 이동합니다.
+      sessionStorage.setItem("storeId", result?.storeId);
+      sessionStorage.setItem("nickname", result.nickname);
+      sessionStorage.setItem("school", result.school);
+      console.log("로그인성공!");
+
+      if (result?.storeId == null) {
+        navigate("/home");
+      }
+      else {
+        navigate("/store-management");
+      }
+      
     } else {
       setLoginCheck(true);
     }
