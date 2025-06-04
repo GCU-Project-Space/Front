@@ -1,20 +1,22 @@
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import Mypage from './pages/Mypage';
 
-import StoreList from './pages/StoreList';
-import MenuSelect from './pages/MenuSelect';
 import MenuOptionSelect from './pages/MenuOptionSelect';
+import MenuSelect from './pages/MenuSelect';
+import StoreList from './pages/StoreList';
 
-import SelectSchool from './pages/SelectSchool';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import RecruitmentList from './pages/RecruitmentList';
-import DeliveryLocation from './pages/DeliveryLocation';
 import FailPage from "./components/toss/FailPage.jsx";
 import SuccessPage from "./components/toss/SuccessPage.jsx";
-import OrderPage from "./pages/OrderPage.jsx";
+import DeliveryLocation from './pages/DeliveryLocation';
+import Login from './pages/Login';
 import OrderHistory from "./pages/OrderHistory.jsx";
+import OrderPage from "./pages/OrderPage.jsx";
+import RecruitmentDetailPage from './pages/RecruitmentDetail.jsx';
+import RecruitmentList from './pages/RecruitmentList';
+import Register from './pages/Register';
+import SelectSchool from './pages/SelectSchool';
+import StoreManagementPage from './pages/StoreManagement.jsx';
 
 
 function App() {
@@ -37,6 +39,8 @@ function App() {
             <Route path="/order" element={<OrderPage/>}/>
             <Route path="/toss/success" element={<SuccessPage/>}/>
             <Route path="/toss/fail" element={<FailPage/>}/>
+            <Route path="/store-management" element={<StoreManagementPage/>}/>
+            <Route path="/recruitment-detail" element={<RecruitmentDetailPage/>}/>
         </Routes>
     );
 }

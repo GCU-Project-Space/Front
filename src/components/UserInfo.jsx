@@ -1,28 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { userService } from '../api/service';
 
 
 function UserInfo() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    axios.get('http://서버주소/api/v1/users/1')
-      .then(res => {
-        setUser(res.data);
-      })
-      .catch(err => {
-        console.error('유저 정보 불러오기 실패:', err);
-      });
-  }, []);
-
   // 기본 값
   const defaultProfile = '/src/assets/user_image.png';  // 기본 이미지 
   const defaultName = '사용자';
-  const defaultSchool = ' OOO 대학교'
+  const defaultSchool = '서울대학교'
 
-  const profileImage = user?.profileImage || defaultProfile;
-  const nickname = user?.nickname || defaultName;
-  const schoolName = user?.schoolName || defaultSchool;
+  const profileImage = defaultProfile;
+
+  const [user, setUser] = useState(null);
+  const [nickname, setNickname] = useState(defaultName);
+  const [schoolName, setSchoolName] = useState(defaultSchool);
+
+  const fetchData = async () => {
+    const response = await userService.getUserInfo(sessionStorage.getItem("userId"));
+
+    if (response.success === true) {
+      console.log("사용자 정보 조회 성공");
+      setUser(response.data);
+    } else {
+      alert(`사용자 정보 조회 실패: ${response.message}`);
+    }
+  };
+  
+
+  useEffect(() => {
+    setNickname(sessionStorage.getItem("nickname"));
+    setSchoolName(sessionStorage.getItem("school"));
+
+  }, []);
+  
+
 
   return (
     <div style={{

@@ -1,10 +1,25 @@
 import { Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 const categories = [
   '패스트푸드', '한식', '분식', '치킨',
   '찜/탕', '일식', '고기', '돈까스/회',
   '피자', '카페/디저트', '샐러드', '중식'
+];
+
+const categories_eng = [
+  "FAST_FOOD",
+  "KOREAN",
+  "SNACK",
+  "CHICKEN",
+  "SOUP",
+  "JAPANESE",
+  "MEAT",
+  "PORK_CUTLET",
+  "PIZZA",
+  "CAFE",
+  "SALAD",
+  "CHINESE"
 ];
 
 function CategoryGrid() {
@@ -23,7 +38,7 @@ function CategoryGrid() {
         <Button
           variant="light"
           key={idx}
-          onClick={() => navigate(`/category?type=${encodeURIComponent(cat)}`)}
+          onClick={() => navigate(`/category?type=${encodeURIComponent(categories_eng[idx])}`)}
           style={{
             backgroundColor: '#eeeeee',
             color: '#000',

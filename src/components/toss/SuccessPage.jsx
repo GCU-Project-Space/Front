@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import './css/SuccessPage.css';
 import FixedLayout from "../FixedLayout.jsx";
+import './css/SuccessPage.css';
 
 export default function SuccessPage() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function SuccessPage() {
     async function confirm() {
       try {
         const response = await fetch(
-          'http://34.127.7.212:8101/v1/payments/confirm',
+          'http://34.127.7.212:8101/api/v1/payments/confirm',
           {
             method: 'POST',
             headers: {
@@ -66,7 +66,7 @@ export default function SuccessPage() {
             <>
               <h2>결제 실패</h2>
               <p>에러 메시지: {errorMsg}</p>
-              <button onClick={() => navigate('/order')}>다시 결제로 돌아가기</button>
+              <button onClick={() => navigate('/home')}>홈으로 돌아가기</button>
             </>
           )}
 
@@ -93,7 +93,7 @@ export default function SuccessPage() {
                   fontSize: '16px',
                   fontWeight: '600',
                 }}
-                onClick={() => navigate('/order-history')}
+                onClick={() => navigate('/recruitment-detail')}
               >
                 주문 내역 보기
               </button>
