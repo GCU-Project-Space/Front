@@ -21,8 +21,8 @@ const StoreManagementPage = () => {
     category: ""
   });
   
-  // 주문 목록 상태
-  const [orders, setOrders] = useState([]);
+  // 그룹별 주문 목록 상태
+  const [recruitmentGroups, setRecruitmentGroups] = useState([]);
   
   // 편집 모드 상태
   const [isEditing, setIsEditing] = useState(false);
@@ -57,7 +57,7 @@ const StoreManagementPage = () => {
     }
   };
 
-  // 주문 목록 불러오기
+  // 주문 목록 불러오기 - 그룹별로 정리
   const fetchOrders = async () => {
     try {
       const storeId = sessionStorage.getItem("storeId");
@@ -65,47 +65,47 @@ const StoreManagementPage = () => {
 
       const response = await recruitmentService.getStoreRecruitments(storeId);
       if (response.success) {
-        // 백엔드 데이터 구조에 맞게 변환
-        const formattedOrders = [];
-        
-        response.data.forEach(group => {
-          // 각 그룹의 주문들을 개별 주문으로 변환
-          group.orders.forEach(order => {
-            // 메뉴 정보 변환
-            const formattedMenus = order.menus.map(menu => ({
+        // 그룹별로 데이터 정리
+        const formattedGroups = response.data.map(group => {
+          // 각 그룹의 개별 주문들 포맷팅
+          const formattedOrders = group.orders.map(order => ({
+            orderId: order.orderId,
+            userId: order.userId,
+            customerName: `고객 ${order.userId}`,
+            orderTime: order.createdAt,
+            totalAmount: order.totalPrice,
+            orderStatus: order.status, // PREPAID, PAID 등
+            menus: order.menus.map(menu => ({
               name: menu.menuName,
               count: menu.count,
               price: menu.totalPrice,
               basePrice: menu.basePrice,
               options: menu.options || []
-            }));
+            }))
+          }));
 
-            // 상태 매핑 (실제 API 상태값에 따라 조정 필요)
-            const mappedStatus = mapStatusFromAPI(group.status);
+          // 총 주문 금액 계산
+          const totalGroupAmount = formattedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+          
+          // 상태 매핑
+          const mappedStatus = mapStatusFromAPI(group.status);
 
-            formattedOrders.push({
-              id: order.orderId,
-              groupId: group.groupId,
-              customerName: `고객 ${order.userId}`, // userId를 기반으로 고객명 생성
-              orderTime: order.createdAt,
-              status: mappedStatus, // 매핑된 상태 사용
-              totalAmount: order.totalPrice,
-              menus: formattedMenus,
-              phoneNumber: '', // API에서 제공되지 않음
-              address: '', // API에서 제공되지 않음
-              title: group.title,
-              description: group.description,
-              category: group.category,
-              deadlineTime: group.deadlineTime,
-              leaderId: group.leaderId,
-              userId: order.userId,
-              orderStatus: order.status, // 개별 주문 상태 (PREPAID 등)
-              originalStatus: group.status // 원본 상태값 보관
-            });
-          });
+          return {
+            groupId: group.groupId,
+            title: group.title,
+            description: group.description,
+            category: group.category,
+            deadlineTime: group.deadlineTime,
+            leaderId: group.leaderId,
+            status: mappedStatus,
+            originalStatus: group.status,
+            totalAmount: totalGroupAmount,
+            participantCount: formattedOrders.length,
+            orders: formattedOrders
+          };
         });
         
-        setOrders(formattedOrders);
+        setRecruitmentGroups(formattedGroups);
       } else {
         console.error('주문 목록 로딩 실패:', response.message);
       }
@@ -154,11 +154,11 @@ const StoreManagementPage = () => {
   };
 
   // 주문 상태 변경
-  const updateOrderStatus = async (order, newStatus) => {
+  const updateOrderStatus = async (group, newStatus) => {
     try {
       setLoading(true);
       let response;
-      const groupId = order.groupId;
+      const groupId = group.groupId;
 
       switch (newStatus) {
         case 'ACCEPTED':
@@ -182,7 +182,7 @@ const StoreManagementPage = () => {
         };
         alert(`주문이 ${statusText[newStatus]}되었습니다.`);
         
-        // 주문 목록 새로고침 (상태 변경 후 최신 데이터로 업데이트)
+        // 주문 목록 새로고침
         fetchOrders();
       } else {
         alert(response.message || '주문 상태 변경에 실패했습니다.');
@@ -197,8 +197,6 @@ const StoreManagementPage = () => {
 
   // API 상태값을 내부 상태값으로 매핑
   const mapStatusFromAPI = (apiStatus) => {
-    // 실제 API에서 사용하는 상태값에 따라 매핑
-    // 예시: API에서 다른 상태값을 사용할 경우
     switch (apiStatus?.toUpperCase()) {
       case 'RECRUITING':
       case 'WAITING':
@@ -214,7 +212,7 @@ const StoreManagementPage = () => {
       case 'FINISHED':
         return 'COMPLETED';
       default:
-        return apiStatus || 'SUBMITTED'; // 기본값
+        return apiStatus || 'SUBMITTED';
     }
   };
 
@@ -229,18 +227,7 @@ const StoreManagementPage = () => {
     }
   };
 
-  // 주문 상태별 텍스트
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'SUBMITTED': return '수락 대기 중';
-      case 'ACCEPTED': return '주문 수락됨';
-      case 'REJECTED': return '거절됨';
-      case 'COMPLETED': return '주문 완료됨';
-      default: return '알 수 없음';
-    }
-  };
-
-  // 원본 상태별 텍스트 (디버깅용)
+  // 원본 상태별 텍스트
   const getOriginalStatusText = (originalStatus) => {
     switch (originalStatus) {
       case 'SUBMITTED': return '수락 대기 중';
@@ -253,36 +240,57 @@ const StoreManagementPage = () => {
     }
   };
 
-  // 메뉴 아이템 렌더링 (백엔드 데이터 구조에 따라 조정)
-  const renderMenuItems = (menus) => {
-    if (!menus || menus.length === 0) return null;
-    
-    return menus.map((menu, index) => (
-      <MenuItem key={index}>
-        <MenuDetails>
-          <MenuName>{menu.name}</MenuName>
-          {menu.options && menu.options.length > 0 && (
-            <MenuOptions>
-              {menu.options.map((option, optIndex) => (
-                <OptionItem key={optIndex}>
-                  + {option.optionName} (+{option.price.toLocaleString()}원)
-                </OptionItem>
-              ))}
-            </MenuOptions>
-          )}
-        </MenuDetails>
-        <MenuQuantity>x{menu.count}</MenuQuantity>
-        <MenuPriceContainer>
-          {menu.basePrice !== menu.price && (
-            <BasePrice>{menu.basePrice?.toLocaleString()}원</BasePrice>
-          )}
-          <MenuPrice>{menu.price.toLocaleString()}원</MenuPrice>
-        </MenuPriceContainer>
-      </MenuItem>
-    ));
+  // 개별 주문 렌더링
+  const renderOrderItem = (order, index) => (
+    <OrderItem key={order.orderId}>
+      <OrderItemHeader>
+        <OrderItemTitle>주문 {index + 1} (ID: {order.orderId})</OrderItemTitle>
+        <OrderItemInfo>
+          <CustomerInfo>고객 ID: {order.userId}</CustomerInfo>
+          <PaymentStatus status={order.orderStatus}>
+            {order.orderStatus}
+          </PaymentStatus>
+        </OrderItemInfo>
+      </OrderItemHeader>
+      
+      <MenuList>
+        {order.menus.map((menu, menuIndex) => (
+          <MenuItem key={menuIndex}>
+            <MenuDetails>
+              <MenuName>{menu.name}</MenuName>
+              {menu.options && menu.options.length > 0 && (
+                <MenuOptions>
+                  {menu.options.map((option, optIndex) => (
+                    <OptionItem key={optIndex}>
+                      + {option.optionName} (+{option.price.toLocaleString()}원)
+                    </OptionItem>
+                  ))}
+                </MenuOptions>
+              )}
+            </MenuDetails>
+            <MenuQuantity>x{menu.count}</MenuQuantity>
+            <MenuPriceContainer>
+              {menu.basePrice !== menu.price && (
+                <BasePrice>{menu.basePrice?.toLocaleString()}원</BasePrice>
+              )}
+              <MenuPrice>{menu.price.toLocaleString()}원</MenuPrice>
+            </MenuPriceContainer>
+          </MenuItem>
+        ))}
+      </MenuList>
+      
+      <OrderItemTotal>
+        소계: {order.totalAmount.toLocaleString()}원
+      </OrderItemTotal>
+    </OrderItem>
+  );
+
+  // 대기 중인 주문 개수 계산
+  const getPendingOrdersCount = () => {
+    return recruitmentGroups.filter(group => group.status === 'SUBMITTED').length;
   };
 
-  if (loading && orders.length === 0 && !storeInfo.id) {
+  if (loading && recruitmentGroups.length === 0 && !storeInfo.id) {
     return (
       <FixedLayout>
         <Header title="가게 관리" />
@@ -312,7 +320,7 @@ const StoreManagementPage = () => {
             active={activeTab === 'orders'} 
             onClick={() => setActiveTab('orders')}
           >
-            주문 관리 ({orders.filter(order => order.status === 'SUBMITTED').length})
+            주문 관리 ({getPendingOrdersCount()})
           </Tab>
         </TabContainer>
 
@@ -430,92 +438,85 @@ const StoreManagementPage = () => {
               </RefreshButton>
             </SectionHeader>
             
-            {orders.length === 0 ? (
+            {recruitmentGroups.length === 0 ? (
               <EmptyMessage>주문이 없습니다.</EmptyMessage>
             ) : (
-              <OrderList>
-                {orders.map((order) => (
-                  <OrderCard key={order.id}>
-                    <OrderHeader>
-                      <OrderNumber>주문 #{order.id}</OrderNumber>
-                      <StatusBadge status={order.status}>
-                        {getOriginalStatusText(order.originalStatus)}
+              <GroupList>
+                {recruitmentGroups.map((group) => (
+                  <GroupCard key={group.groupId}>
+                    <GroupHeader>
+                      <GroupHeaderLeft>
+                        <GroupTitle>{group.title}</GroupTitle>
+                        <GroupSubInfo>
+                          <GroupId>그룹 #{group.groupId}</GroupId>
+                          <ParticipantCount>참여자 {group.participantCount}명</ParticipantCount>
+                        </GroupSubInfo>
+                      </GroupHeaderLeft>
+                      <StatusBadge status={group.status}>
+                        {getOriginalStatusText(group.originalStatus)}
                       </StatusBadge>
-                    </OrderHeader>
+                    </GroupHeader>
 
-                    <OrderInfo>
-                      <InfoItem>
-                        <InfoLabel>그룹 제목:</InfoLabel>
-                        <InfoValue>{order.title}</InfoValue>
-                      </InfoItem>
+                    <GroupInfo>
                       <InfoItem>
                         <InfoLabel>설명:</InfoLabel>
-                        <InfoValue>{order.description}</InfoValue>
+                        <InfoValue>{group.description}</InfoValue>
                       </InfoItem>
                       <InfoItem>
                         <InfoLabel>카테고리:</InfoLabel>
-                        <InfoValue>{order.category}</InfoValue>
-                      </InfoItem>
-                      <InfoItem>
-                        <InfoLabel>주문자 ID:</InfoLabel>
-                        <InfoValue>{order.userId}</InfoValue>
-                      </InfoItem>
-                      <InfoItem>
-                        <InfoLabel>주문시간:</InfoLabel>
-                        <InfoValue>{order.orderTime}</InfoValue>
+                        <InfoValue>{group.category}</InfoValue>
                       </InfoItem>
                       <InfoItem>
                         <InfoLabel>마감시간:</InfoLabel>
-                        <InfoValue>{new Date(order.deadlineTime).toLocaleString()}</InfoValue>
+                        <InfoValue>{new Date(group.deadlineTime).toLocaleString()}</InfoValue>
                       </InfoItem>
                       <InfoItem>
-                        <InfoLabel>결제상태:</InfoLabel>
-                        <InfoValue>
-                          <PaymentStatus status={order.orderStatus}>
-                            {order.orderStatus}
-                          </PaymentStatus>
-                        </InfoValue>
+                        <InfoLabel>리더 ID:</InfoLabel>
+                        <InfoValue>{group.leaderId}</InfoValue>
                       </InfoItem>
-                    </OrderInfo>
+                    </GroupInfo>
 
-                    <MenuList>
-                      <MenuTitle>주문 메뉴</MenuTitle>
-                      {renderMenuItems(order.menus)}
-                      <TotalAmount>
-                        총 금액: {order.totalAmount.toLocaleString()}원
-                      </TotalAmount>
-                    </MenuList>
+                    <OrdersSection>
+                      <OrdersSectionTitle>개별 주문 목록</OrdersSectionTitle>
+                      <OrdersList>
+                        {group.orders.map((order, index) => renderOrderItem(order, index))}
+                      </OrdersList>
+                      
+                      <GroupTotal>
+                        총 주문 금액: {group.totalAmount.toLocaleString()}원
+                      </GroupTotal>
+                    </OrdersSection>
 
-                    {order.status === 'SUBMITTED' && (
-                      <OrderActions>
+                    {group.status === 'SUBMITTED' && (
+                      <GroupActions>
                         <AcceptButton 
-                          onClick={() => updateOrderStatus(order, 'ACCEPTED')}
+                          onClick={() => updateOrderStatus(group, 'ACCEPTED')}
                           disabled={loading}
                         >
                           {loading ? '처리중...' : '수락'}
                         </AcceptButton>
                         <RejectButton 
-                          onClick={() => updateOrderStatus(order, 'REJECTED')}
+                          onClick={() => updateOrderStatus(group, 'REJECTED')}
                           disabled={loading}
                         >
                           {loading ? '처리중...' : '거절'}
                         </RejectButton>
-                      </OrderActions>
+                      </GroupActions>
                     )}
 
-                    {order.status === 'ACCEPTED' && (
-                      <OrderActions>
+                    {group.status === 'ACCEPTED' && (
+                      <GroupActions>
                         <CompleteButton 
-                          onClick={() => updateOrderStatus(order, 'COMPLETED')}
+                          onClick={() => updateOrderStatus(group, 'COMPLETED')}
                           disabled={loading}
                         >
                           {loading ? '처리중...' : '완료'}
                         </CompleteButton>
-                      </OrderActions>
+                      </GroupActions>
                     )}
-                  </OrderCard>
+                  </GroupCard>
                 ))}
-              </OrderList>
+              </GroupList>
             )}
           </Section>
         )}
@@ -724,86 +725,189 @@ const EmptyMessage = styled.div`
   font-size: 1rem;
 `;
 
-const OrderList = styled.div`
+// 그룹 카드 관련 스타일
+const GroupList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 `;
 
-const OrderCard = styled.div`
+const GroupCard = styled.div`
   background: white;
   border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 `;
 
-const OrderHeader = styled.div`
+const GroupHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 16px;
 `;
 
-const OrderNumber = styled.h3`
-  font-size: 1.2rem;
-  font-weight: 600;
+const GroupHeaderLeft = styled.div`
+  flex: 1;
+`;
+
+const GroupTitle = styled.h3`
+  font-size: 1.3rem;
+  font-weight: 700;
   color: #333;
-  margin: 0;
+  margin: 0 0 8px 0;
+`;
+
+const GroupSubInfo = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
+
+const GroupId = styled.span`
+  font-size: 0.9rem;
+  color: #666;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 6px;
+`;
+
+const ParticipantCount = styled.span`
+  font-size: 0.9rem;
+  color: #1f3993;
+  font-weight: 600;
 `;
 
 const StatusBadge = styled.span`
   background: ${props => {
     switch (props.status) {
-      case 'SUBMITTED': return '#ffc107'; // 수락 대기 중 - 노란색
-      case 'ACCEPTED': return '#28a745'; // 주문 수락됨 - 초록색
-      case 'REJECTED': return '#dc3545'; // 거절됨/실패/취소 - 빨간색
-      case 'COMPLETED': return '#6c757d'; // 완료됨 - 회색
+      case 'SUBMITTED': return '#ffc107';
+      case 'ACCEPTED': return '#28a745';
+      case 'REJECTED': return '#dc3545';
+      case 'COMPLETED': return '#6c757d';
       default: return '#6c757d';
     }
   }};
   color: white;
-  padding: 4px 12px;
+  padding: 8px 16px;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
+  white-space: nowrap;
 `;
 
-const OrderInfo = styled.div`
-  margin-bottom: 16px;
+const GroupInfo = styled.div`
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
 `;
 
 const InfoItem = styled.div`
   display: flex;
   margin-bottom: 8px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const InfoLabel = styled.span`
   width: 80px;
   font-weight: 600;
   color: #333;
+  flex-shrink: 0;
 `;
 
 const InfoValue = styled.span`
   color: #666;
+  flex: 1;
 `;
 
-const MenuList = styled.div`
+// 주문 섹션 관련 스타일
+const OrdersSection = styled.div`
+  margin-bottom: 20px;
+`;
+
+const OrdersSectionTitle = styled.h4`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px 0;
+`;
+
+const OrdersList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 16px;
 `;
 
-const MenuTitle = styled.h4`
+const OrderItem = styled.div`
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+`;
+
+const OrderItemHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+`;
+
+const OrderItemTitle = styled.h5`
   font-size: 1rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 12px 0;
+  margin: 0;
+`;
+
+const OrderItemInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+`;
+
+const CustomerInfo = styled.span`
+  font-size: 0.85rem;
+  color: #666;
+`;
+
+const PaymentStatus = styled.span`
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: ${props => {
+    switch (props.status) {
+      case 'PREPAID': return '#e3f2fd';
+      case 'PAID': return '#e8f5e8';
+      case 'SUBMITTED': return '#fff3e0';
+      default: return '#f5f5f5';
+    }
+  }};
+  color: ${props => {
+    switch (props.status) {
+      case 'PREPAID': return '#1976d2';
+      case 'PAID': return '#388e3c';
+      case 'SUBMITTED': return '#f57c00';
+      default: return '#666';
+    }
+  }};
+`;
+
+const MenuList = styled.div`
+  margin-bottom: 12px;
 `;
 
 const MenuItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #f1f3f5;
   
   &:last-child {
@@ -856,40 +960,26 @@ const MenuPrice = styled.span`
   font-weight: 600;
 `;
 
-const PaymentStatus = styled.span`
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: ${props => {
-    switch (props.status) {
-      case 'PREPAID': return '#e3f2fd';
-      case 'PAID': return '#e8f5e8';
-      case 'SUBMITTED': return '#fff3e0';
-      default: return '#f5f5f5';
-    }
-  }};
-  color: ${props => {
-    switch (props.status) {
-      case 'PREPAID': return '#1976d2';
-      case 'PAID': return '#388e3c';
-      case 'SUBMITTED': return '#f57c00';
-      default: return '#666';
-    }
-  }};
-`;
-
-const TotalAmount = styled.div`
+const OrderItemTotal = styled.div`
   text-align: right;
   font-weight: 600;
-  font-size: 1.1rem;
   color: #1f3993;
-  margin-top: 12px;
-  padding-top: 12px;
+  padding-top: 8px;
   border-top: 1px solid #e9ecef;
 `;
 
-const OrderActions = styled.div`
+const GroupTotal = styled.div`
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #1f3993;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+`;
+
+const GroupActions = styled.div`
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -899,8 +989,8 @@ const AcceptButton = styled.button`
   background: #28a745;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   font-weight: 600;
@@ -915,8 +1005,8 @@ const RejectButton = styled.button`
   background: #dc3545;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   font-weight: 600;
@@ -931,8 +1021,8 @@ const CompleteButton = styled.button`
   background: #1f3993;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
   font-weight: 600;
@@ -942,14 +1032,3 @@ const CompleteButton = styled.button`
     cursor: not-allowed;
   }
 `;
-
-// StatusBadge에서 사용하는 함수를 컴포넌트 외부로 이동
-function getStatusColor(status) {
-  switch (status) {
-    case 'SUBMITTED': return '#ffc107';
-    case 'ACCEPTED': return '#28a745';
-    case 'REJECTED': return '#dc3545';
-    case 'COMPLETED': return '#6c757d';
-    default: return '#6c757d';
-  }
-}

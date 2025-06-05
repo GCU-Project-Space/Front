@@ -26,6 +26,7 @@ const OrderPage = () => {
   const [recruitmentInfo, setRecruitmentInfo] = useState({
     title: "",
     description: "",
+    location: "제 2기숙사",
     deadlineHours: 1 // 기본 1시간
   });
 
@@ -252,6 +253,15 @@ const OrderPage = () => {
                 />
               </InputGroup>
               
+              <InputGroup>
+                <Label>장소</Label>
+                <Input
+                  value={recruitmentInfo.location}
+                  onChange={(e) => setRecruitmentInfo({...recruitmentInfo, location: e.target.value})}
+                  placeholder="배달 받을 장소를 입력하세요"
+                />
+              </InputGroup>
+
               <InputGroup>
                 <Label>마감시간</Label>
                 <DeadlineOptions>

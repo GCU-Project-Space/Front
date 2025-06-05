@@ -168,9 +168,6 @@ function RecruitmentList() {
             <StatusCount recruiting>
               모집 중 {recruitingCount}개
             </StatusCount>
-            <StatusCount>
-              전체 {totalCount}개
-            </StatusCount>
           </StatusInfo>
         </FilterSection>
       </HeaderSection>

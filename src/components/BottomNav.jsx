@@ -1,16 +1,26 @@
-import { Navbar, Nav } from 'react-bootstrap';
+import { Nav, Navbar } from 'react-bootstrap';
 import { ArrowLeft, HouseDoor, Person } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 
 function BottomNav() {
-
   const navigate = useNavigate();
-  
+
+  // storeId 체크 함수
+  const goHome = () => {
+    const storeId = sessionStorage.getItem('storeId');
+    if (storeId >= 0) {
+      console.log(storeId);
+      navigate('/store-management');
+    } else {
+      navigate('/home');
+    }
+  };
+
   return (
     <Navbar
-      fixed="bottom" 
+      fixed="bottom"
       style={{
-        position: 'absolute', 
+        position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
@@ -23,7 +33,7 @@ function BottomNav() {
         <Nav.Link onClick={() => navigate(-1)}>
           <ArrowLeft size={30} color="#0C198C" />
         </Nav.Link>
-        <Nav.Link onClick={() => navigate('/home')}>
+        <Nav.Link onClick={goHome}>
           <HouseDoor size={30} color="#0C198C" />
         </Nav.Link>
         <Nav.Link onClick={() => navigate('/mypage')}>

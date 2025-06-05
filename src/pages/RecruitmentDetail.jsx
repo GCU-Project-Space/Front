@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'react-bootstrap-icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { recruitmentService, storeService } from '../api/service';
+import { orderService, recruitmentService, storeService, userService } from '../api/service';
 import BottomNav from '../components/BottomNav';
 import FixedLayout from '../components/FixedLayout';
 import Header from '../components/Header';
+import { CheckOutComponent } from '../components/TossCheckOutComponent';
 
 const RecruitmentDetailPage = () => {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ const RecruitmentDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkOutData, setCheckoutData] = useState(null);
+
   var recruitmentId = sessionStorage.getItem("groupId") || localStorage.getItem("groupId");
   const currentUserId = parseInt(sessionStorage.getItem("userId"));
 
@@ -180,17 +184,126 @@ const RecruitmentDetailPage = () => {
     navigate(`/menu-select?storeId=${recruitmentData.storeId}`);
   };
 
-  // 결제하기 버튼 클릭
-  const handlePayment = () => {
-    const userOrder = getCurrentUserOrder();
-    if (userOrder) {
-      // 결제 페이지로 이동 (orderId 전달)
-      navigate('/payment', { 
-        state: { 
+  // 결제하기 버튼 클릭 - 수정된 버전
+  const handlePayment = async () => {
+    try {
+      const userOrder = getCurrentUserOrder();
+      if (!userOrder) {
+        console.error('사용자의 주문 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      // 병렬로 주문 정보와 사용자 정보 가져오기
+      const [orderResponse, userResponse] = await Promise.all([
+        orderService.getOrder(userOrder.orderId),
+        userService.getUserInfo(currentUserId)
+      ]);
+      
+      if (orderResponse.success && orderResponse.data) {
+        const orderData = orderResponse.data;
+        
+        // 메뉴 이름들을 조합해서 주문명 생성
+        const orderName = orderData.menus.map(menu => menu.menuName).join(', ') || '주문 이어하기';
+        
+        // 사용자 정보 처리
+        let customerInfo = {
+          customerEmail: sessionStorage.getItem("customerEmail") || "",
+          customerName: sessionStorage.getItem("customerName") || "",
+          customerMobilePhone: sessionStorage.getItem("customerMobilePhone") || ""
+        };
+
+        // userService에서 정보를 성공적으로 가져온 경우 사용
+        if (userResponse.success && userResponse.data) {
+          const userData = userResponse.data;
+          customerInfo = {
+            customerEmail: userData.email || customerInfo.customerEmail,
+            customerName: userData.nickname || customerInfo.customerName,
+            customerMobilePhone: userData.phoneNumber || customerInfo.customerMobilePhone
+          };
+          console.log('사용자 정보를 API에서 가져왔습니다:', userData);
+        } else {
+          console.warn('사용자 정보를 불러올 수 없어 세션 정보를 사용합니다:', userResponse.message);
+        }
+        
+        // 결제 데이터 구성
+        const paymentData = {
+          data: {
+            orderId: orderData.orderId,
+            amount: orderData.totalPrice,
+            orderName: orderName,
+            ...customerInfo
+          }
+        };
+        
+        setCheckoutData(paymentData);
+        setShowCheckout(true);
+        
+        console.log('결제 데이터:', paymentData);
+      } else {
+        console.error('주문 정보를 불러올 수 없습니다:', orderResponse.message);
+        // 기존 방식으로 fallback
+        await handlePaymentFallback(userOrder);
+      }
+    } catch (error) {
+      console.error('결제 준비 중 오류 발생:', error);
+      
+      // 에러 발생 시 기존 방식으로 fallback
+      const userOrder = getCurrentUserOrder();
+      if (userOrder) {
+        await handlePaymentFallback(userOrder);
+      }
+    }
+  };
+
+  // Fallback 결제 처리 함수
+  const handlePaymentFallback = async (userOrder) => {
+    try {
+      // 사용자 정보만이라도 가져오기 시도
+      const userResponse = await userService.getUser(currentUserId);
+      
+      let customerInfo = {
+        customerEmail: sessionStorage.getItem("customerEmail") || "",
+        customerName: sessionStorage.getItem("customerName") || "",
+        customerMobilePhone: sessionStorage.getItem("customerMobilePhone") || ""
+      };
+
+      if (userResponse.success && userResponse.data) {
+        const userData = userResponse.data;
+        customerInfo = {
+          customerEmail: userData.email || customerInfo.customerEmail,
+          customerName: userData.nickname || customerInfo.customerName,
+          customerMobilePhone: userData.phoneNumber || customerInfo.customerMobilePhone
+        };
+      }
+
+      const fallbackPaymentData = {
+        data: {
           orderId: userOrder.orderId,
-          recruitmentData: recruitmentData 
-        } 
-      });
+          amount: userOrder.totalPrice,
+          orderName: '주문 이어하기',
+          ...customerInfo
+        }
+      };
+      
+      setCheckoutData(fallbackPaymentData);
+      setShowCheckout(true);
+    } catch (fallbackError) {
+      console.error('Fallback 처리 중 오류:', fallbackError);
+      
+      // 완전 fallback - 세션 정보만 사용
+      const completeFallbackData = {
+        data: {
+          orderId: userOrder.orderId,
+          amount: userOrder.totalPrice,
+          orderName: '주문 이어하기',
+          customerEmail: sessionStorage.getItem("customerEmail") || "",
+          customerName: sessionStorage.getItem("customerName") || "",
+          customerMobilePhone: sessionStorage.getItem("customerMobilePhone") || ""
+        }
+      };
+      
+      setCheckoutData(completeFallbackData);
+      setShowCheckout(true);
     }
   };
 
@@ -264,7 +377,7 @@ const RecruitmentDetailPage = () => {
     }
 
     // 리더인 경우
-    if (isLeader && recruitmentData.status === 'RECRUITING') {
+    if (isLeader && recruitmentData.status === 'RECRUITING' && hasPaid()) {
       const orderReady = canOrder();
       let buttonText = '🛒 주문하기';
       
@@ -342,7 +455,7 @@ const RecruitmentDetailPage = () => {
           <RecruitmentInfo>
             <InfoRow>
               <InfoIcon>📍</InfoIcon>
-              <InfoText>카테고리: {recruitmentData.category}</InfoText>
+              <InfoText>{recruitmentData.location}</InfoText>
             </InfoRow>
             
             <InfoRow>
@@ -493,6 +606,8 @@ const RecruitmentDetailPage = () => {
             </EmptyParticipants>
           )}
         </ParticipantsSection>
+      
+        { showCheckout && checkOutData && (<CheckOutComponent orderData={checkOutData} />)}
 
         {/* 액션 버튼 */}
         <ActionSection>

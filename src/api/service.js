@@ -84,7 +84,7 @@ export const recruitmentService = {
     },
 
     async completeRecruitment(groupId) {
-        return await apiClient.put(`/recruitments/${groupId}/compelete`);
+        return await apiClient.put(`/recruitments/${groupId}/complete`);
     },
     
     // 유저별 모집 조회
@@ -145,9 +145,9 @@ export const storeService = {
 }
 
 export const orderService = {
-    // 주문
-    async order() {
-
+    // 주문 조회
+    async getOrder(orderId) {
+        return await apiClient.get(`/orders/detail/${orderId}`);
     },
 
     // 주문 취소
