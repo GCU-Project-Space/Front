@@ -455,7 +455,7 @@ const RecruitmentDetailPage = () => {
           <RecruitmentInfo>
             <InfoRow>
               <InfoIcon>📍</InfoIcon>
-              <InfoText>{recruitmentData.location}</InfoText>
+              <InfoText>{recruitmentData.location || "제 2기숙사"}</InfoText>
             </InfoRow>
             
             <InfoRow>
